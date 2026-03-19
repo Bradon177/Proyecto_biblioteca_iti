@@ -36,14 +36,22 @@ export function ExcelUploader({ onDataLoaded }) {
             // Función para obtener valor buscando por múltiples posibles nombres de columna
             const getVal = (row, keys) => {
               const rowKeys = Object.keys(row);
+              
+              // Función para normalizar una cadena (quitar todo excepto letras y números)
+              const normalize = (str) => {
+                if (!str) return "";
+                return String(str)
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "") // Quitar tildes
+                  .replace(/[^a-zA-Z0-9]/g, "")    // Quitar todo lo que no sea letra o número
+                  .toLowerCase();
+              };
+
               for (const key of keys) {
-                // Búsqueda exacta
-                if (row[key] !== undefined) return row[key];
+                const normalizedSearchKey = normalize(key);
                 
-                // Búsqueda insensible a mayúsculas/minúsculas y espacios
-                const foundKey = rowKeys.find(rk => 
-                  rk.toLowerCase().trim() === key.toLowerCase().trim()
-                );
+                // Buscar coincidencia normalizada
+                const foundKey = rowKeys.find(rk => normalize(rk) === normalizedSearchKey);
                 if (foundKey) return row[foundKey];
               }
               return "";
@@ -57,16 +65,16 @@ export function ExcelUploader({ onDataLoaded }) {
             };
 
             return {
-              codigo: String(getVal(row, ["Código del Libro", "Codigo", "ID", "Código"])),
-              nombre: String(getVal(row, ["Nombre del Libro", "Nombre", "Título", "Libro"])),
-              autor: String(getVal(row, ["Autor (es)", "Autor", "Autores"])),
-              area: String(getVal(row, ["Área / Sección", "Área", "Area", "Sección", "Seccion"])),
+              codigo: String(getVal(row, ["Código del Libro", "Codigo", "ID", "Código", "Cod"])),
+              nombre: String(getVal(row, ["Nombre del Libro", "Nombre", "Título", "Libro", "Nombre Libro"])),
+              autor: String(getVal(row, ["Autor (es)", "Autor", "Autores", "Autor(es)"])),
+              area: String(getVal(row, ["Área / Sección", "Área", "Area", "Sección", "Seccion", "Area Seccion"])),
               tema: String(getVal(row, ["Tema", "Categoría", "Categoria"])),
-              stand: String(getVal(row, ["Nº Stand", "No Stand", "Stand", "Estante"])),
-              cantidad: Number(getVal(row, ["Cantidad", "Stock", "Ejemplares"]) || 0),
-              fisico: isSi(getVal(row, ["Libro en Físico?", "Libro Físico?", "Físico", "Fisico"])),
-              virtual: isSi(getVal(row, ["Libro Virtual? (e-Book)", "Libro Virtual?", "Virtual", "Digital", "E-book"])),
-              linkVirtual: String(getVal(row, ["Enalce del libro", "Enlace del libro", "Enlace", "Link", "URL", "Enalce"])),
+              stand: String(getVal(row, ["Nº Stand", "No Stand", "Stand", "Estante", "N Stand", "No. Stand"])),
+              cantidad: Number(getVal(row, ["Cantidad", "Stock", "Ejemplares", "Cant"]) || 0),
+              fisico: isSi(getVal(row, ["Libro en Físico?", "Libro Físico?", "Físico", "Fisico", "En Físico", "En Fisico"])),
+              virtual: isSi(getVal(row, ["Libro Virtual? (e-Book)", "Libro Virtual?", "Virtual", "Digital", "E-book", "eBook"])),
+              linkVirtual: String(getVal(row, ["Enalce del libro", "Enlace del libro", "Enlace", "Link", "URL", "Enalce", "Enalce Libro", "Enlace Libro"])),
             };
           });
 
