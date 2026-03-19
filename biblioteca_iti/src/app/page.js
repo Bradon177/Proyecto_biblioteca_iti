@@ -22,6 +22,11 @@ export default function Home() {
   // Manejar carga de nuevos datos desde Excel
   const handleDataLoaded = (newBooks) => {
     setBooks(newBooks);
+    setSearchTerm("");
+    setAreaFilter("all");
+    setTemaFilter("all");
+    setFormatFilter("all");
+    setCurrentPage(1);
     // Nota: En una app real, aquí podrías enviar los datos al backend para guardar en library.json
   };
 

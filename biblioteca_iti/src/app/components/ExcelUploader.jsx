@@ -21,38 +21,64 @@ export function ExcelUploader({ onDataLoaded }) {
     const reader = new FileReader();
     reader.onload = (evt) => {
       try {
-        const bstr = evt.target.result;
-        const wb = XLSX.read(bstr, { type: "binary" });
+        const dataBuffer = evt.target.result;
+        const wb = XLSX.read(dataBuffer, { type: "array" });
         const wsname = wb.SheetNames[0];
         const ws = wb.Sheets[wsname];
         const data = XLSX.utils.sheet_to_json(ws);
 
+        console.log("Datos brutos del Excel:", data);
+
         // Mapear los datos del Excel a la estructura del JSON
-        const mappedData = data.map((row) => {
-          // Función auxiliar para detectar "SI" de forma robusta
-          const isSi = (val) => {
-            if (val === undefined || val === null) return false;
-            const str = String(val).toUpperCase().trim();
-            return str === "SI" || str === "SÍ" || val === true || val === 1;
-          };
+        const mappedData = data
+          .filter((row) => Object.values(row).some((val) => val !== null && val !== ""))
+          .map((row) => {
+            // Función para obtener valor buscando por múltiples posibles nombres de columna
+            const getVal = (row, keys) => {
+              const rowKeys = Object.keys(row);
+              for (const key of keys) {
+                // Búsqueda exacta
+                if (row[key] !== undefined) return row[key];
+                
+                // Búsqueda insensible a mayúsculas/minúsculas y espacios
+                const foundKey = rowKeys.find(rk => 
+                  rk.toLowerCase().trim() === key.toLowerCase().trim()
+                );
+                if (foundKey) return row[foundKey];
+              }
+              return "";
+            };
 
-          return {
-            codigo: String(row["Código del Libro"] || row["Codigo"] || ""),
-            nombre: String(row["Nombre del Libro"] || row["Nombre"] || ""),
-            autor: String(row["Autor (es)"] || row["Autor"] || ""),
-            area: String(row["Área / Sección"] || row["Area"] || ""),
-            tema: String(row["Tema"] || ""),
-            stand: String(row["Nº Stand"] || row["No Stand"] || row["Stand"] || ""),
-            cantidad: Number(row["Cantidad"] || 0),
-            fisico: isSi(row["Libro en Físico?"] || row["Libro Físico?"]),
-            virtual: isSi(row["Libro Virtual? (e-Book)"] || row["Libro Virtual?"]),
-            linkVirtual: String(row["Enalce del libro"] || row["Enlace del libro"] || row["Enlace"] || ""),
-          };
-        });
+            // Función auxiliar para detectar "SI" de forma robusta
+            const isSi = (val) => {
+              if (val === undefined || val === null) return false;
+              const str = String(val).toUpperCase().trim();
+              return str === "SI" || str === "SÍ" || val === true || val === 1 || str === "S";
+            };
 
-        onDataLoaded(mappedData);
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
+            return {
+              codigo: String(getVal(row, ["Código del Libro", "Codigo", "ID", "Código"])),
+              nombre: String(getVal(row, ["Nombre del Libro", "Nombre", "Título", "Libro"])),
+              autor: String(getVal(row, ["Autor (es)", "Autor", "Autores"])),
+              area: String(getVal(row, ["Área / Sección", "Área", "Area", "Sección", "Seccion"])),
+              tema: String(getVal(row, ["Tema", "Categoría", "Categoria"])),
+              stand: String(getVal(row, ["Nº Stand", "No Stand", "Stand", "Estante"])),
+              cantidad: Number(getVal(row, ["Cantidad", "Stock", "Ejemplares"]) || 0),
+              fisico: isSi(getVal(row, ["Libro en Físico?", "Libro Físico?", "Físico", "Fisico"])),
+              virtual: isSi(getVal(row, ["Libro Virtual? (e-Book)", "Libro Virtual?", "Virtual", "Digital", "E-book"])),
+              linkVirtual: String(getVal(row, ["Enalce del libro", "Enlace del libro", "Enlace", "Link", "URL", "Enalce"])),
+            };
+          });
+
+        console.log("Datos mapeados:", mappedData);
+
+        if (mappedData.length > 0) {
+          onDataLoaded(mappedData);
+          setSuccess(true);
+          setTimeout(() => setSuccess(false), 3000);
+        } else {
+          setError("No se encontraron datos válidos en el archivo.");
+        }
       } catch (err) {
         console.error("Error al procesar el Excel:", err);
         setError("Error al procesar el archivo Excel. Asegúrate de que las columnas coincidan.");
@@ -66,7 +92,7 @@ export function ExcelUploader({ onDataLoaded }) {
       setLoading(false);
     };
 
-    reader.readAsBinaryString(file);
+    reader.readAsArrayBuffer(file);
   };
 
   return (
