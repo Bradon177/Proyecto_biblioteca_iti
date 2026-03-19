@@ -170,43 +170,7 @@ const handleItemsPerPageChange = (items) => {
           </div>
         </div>
 
-        {/* Info del sistema */}
-        <div className="mt-8 bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-lg p-6 sm:p-8 border-2 border-[#2d5016]/10">
-          <div className="flex items-center gap-3 mb-4 pb-4 border-b-2 border-[#ffd700]/30">
-            <div className="w-10 h-10 bg-gradient-to-r from-[#2d5016] to-[#3a6b1c] rounded-lg flex items-center justify-center">
-              <BarChart3 className="w-5 h-5 text-white" />
-            </div>
-            <h3 className="text-xl sm:text-2xl font-bold text-[#2d5016]">
-              Información del Sistema
-            </h3>
-          </div>
-          <div className="text-gray-700 space-y-3 text-sm sm:text-base">
-            <p className="flex items-start gap-2">
-              <span className="w-6 h-6 rounded-full bg-[#ffd700]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="w-2 h-2 rounded-full bg-[#2d5016]"></span>
-              </span>
-              <span>
-                Este sistema está diseñado <strong>únicamente para consultas</strong>. Los datos se gestionan a través de archivos JSON.
-              </span>
-            </p>
-            <p className="flex items-start gap-2">
-              <span className="w-6 h-6 rounded-full bg-[#ffd700]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="w-2 h-2 rounded-full bg-[#2d5016]"></span>
-              </span>
-              <span>
-                Para actualizar el catálogo, modifica el archivo <code className="bg-gray-100 px-2 py-1 rounded text-[#2d5016] font-mono text-sm">/src/app/data/library.json</code>
-              </span>
-            </p>
-            <p className="flex items-start gap-2">
-              <span className="w-6 h-6 rounded-full bg-[#ffd700]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="w-2 h-2 rounded-full bg-[#2d5016]"></span>
-              </span>
-              <span>
-                Utiliza los filtros superiores para encontrar rápidamente el libro que necesitas.
-              </span>
-            </p>
-          </div>
-        </div>
+     
       </main>
 
       <footer className="bg-gradient-to-r from-[#2d5016] via-[#3a6b1c] to-[#2d5016] text-white py-6 sm:py-8 mt-16 shadow-2xl">
