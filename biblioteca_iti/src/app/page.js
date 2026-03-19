@@ -33,12 +33,12 @@ export default function Home() {
 // Obtener listas únicas de áreas y temas
 const areas = useMemo(() => {
   const uniqueAreas = [...new Set(books.map((book) => book.area))];
-  return uniqueAreas.sort();
+  return uniqueAreas.filter(area => area && area.trim() !== "").sort();
 }, [books]);
 
 const temas = useMemo(() => {
   const uniqueTemas = [...new Set(books.map((book) => book.tema))];
-  return uniqueTemas.sort();
+  return uniqueTemas.filter(tema => tema && tema.trim() !== "").sort();
 }, [books]);
 
 // Filtrar libros según los criterios de búsqueda

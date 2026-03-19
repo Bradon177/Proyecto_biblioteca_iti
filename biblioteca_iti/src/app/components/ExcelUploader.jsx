@@ -19,7 +19,7 @@ export function ExcelUploader({ onDataLoaded }) {
     setSuccess(false);
 
     const reader = new FileReader();
-    reader.onload = (evt) => {
+    reader.onload = async (evt) => {
       try {
         const dataBuffer = evt.target.result;
         const wb = XLSX.read(dataBuffer, { type: "array" });
@@ -81,6 +81,19 @@ export function ExcelUploader({ onDataLoaded }) {
         console.log("Datos mapeados:", mappedData);
 
         if (mappedData.length > 0) {
+          // Guardar datos en el servidor
+          const response = await fetch("/api/save-books", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(mappedData),
+          });
+
+          if (!response.ok) {
+            throw new Error("No se pudieron guardar los datos en el servidor");
+          }
+
           onDataLoaded(mappedData);
           setSuccess(true);
           setTimeout(() => setSuccess(false), 3000);
@@ -89,7 +102,7 @@ export function ExcelUploader({ onDataLoaded }) {
         }
       } catch (err) {
         console.error("Error al procesar el Excel:", err);
-        setError("Error al procesar el archivo Excel. Asegúrate de que las columnas coincidan.");
+        setError(err.message || "Error al procesar el archivo Excel. Asegúrate de que las columnas coincidan.");
       } finally {
         setLoading(false);
       }

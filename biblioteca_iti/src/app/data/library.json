@@ -1,3 +1,40 @@
 {
-  "books": []
+  "books": [
+    {
+      "codigo": "54545",
+      "nombre": "Matematicas",
+      "autor": "Fabian",
+      "area": "A1",
+      "tema": "Matematicas",
+      "stand": "12",
+      "cantidad": 25,
+      "fisico": true,
+      "virtual": false,
+      "linkVirtual": "https://www.ellibrototal.com/ltotal/"
+    },
+    {
+      "codigo": "12345",
+      "nombre": "Español",
+      "autor": "Fabian",
+      "area": "A1",
+      "tema": "hola",
+      "stand": "12",
+      "cantidad": 25,
+      "fisico": false,
+      "virtual": false,
+      "linkVirtual": "https://www.ellibrototal.com/ltotal/"
+    },
+    {
+      "codigo": "2324345",
+      "nombre": "Sociales",
+      "autor": "Fabian",
+      "area": "A1",
+      "tema": "hola",
+      "stand": "12",
+      "cantidad": 25,
+      "fisico": false,
+      "virtual": true,
+      "linkVirtual": "https://www.ellibrototal.com/ltotal/"
+    }
+  ]
 }
