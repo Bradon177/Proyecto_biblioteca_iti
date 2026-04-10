@@ -1,5 +1,28 @@
 {
   "books": [
-  
+    {
+      "codigo": "1223343",
+      "nombre": "matematicas",
+      "autor": "fabian",
+      "area": "A-12",
+      "tema": "matematicas",
+      "stand": "12",
+      "cantidad": 6,
+      "fisico": true,
+      "virtual": true,
+      "linkVirtual": "https://www.ellibrototal.com/ltotal/"
+    },
+    {
+      "codigo": "1256151",
+      "nombre": "Español",
+      "autor": "fabian",
+      "area": "A-12",
+      "tema": "matematicas",
+      "stand": "12",
+      "cantidad": 6,
+      "fisico": false,
+      "virtual": false,
+      "linkVirtual": "https://www.ellibrototal.com/ltotal/"
+    }
   ]
 }
