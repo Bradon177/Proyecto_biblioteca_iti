@@ -36,7 +36,7 @@ export function BookTable({ books }) {
             ) : (
               books.map((book, index) => (
                 <TableRow
-                  key={book.codigo}
+                  key={`${book.codigo}-${index}`}
                   className={`
                     hover:bg-gradient-to-r hover:from-[#e8e4c0]/50 hover:to-[#ffd700]/10
                     transition-all duration-200 border-b border-gray-100

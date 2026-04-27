@@ -7,17 +7,39 @@ import { BookTable } from "@/app/components/BookTable";
 import { Pagination } from "@/app/components/Pagination";
 import { ExcelUploader } from "@/app/components/ExcelUploader";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import libraryData from "@/app/data/library.json";
 
-export default function Home() {
+function HomeContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
   const [books, setBooks] = useState(libraryData.books);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [areaFilter, setAreaFilter] = useState("all");
-  const [temaFilter, setTemaFilter] = useState("all");
-  const [formatFilter, setFormatFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
+
+  // Inicializar estados desde la URL
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "");
+  const [areaFilter, setAreaFilter] = useState(searchParams.get("area") || "all");
+  const [temaFilter, setTemaFilter] = useState(searchParams.get("tema") || "all");
+  const [formatFilter, setFormatFilter] = useState(searchParams.get("format") || "all");
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // Sincronizar estado con la URL
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (searchTerm) params.set("search", searchTerm);
+    if (areaFilter !== "all") params.set("area", areaFilter);
+    if (temaFilter !== "all") params.set("tema", temaFilter);
+    if (formatFilter !== "all") params.set("format", formatFilter);
+    if (currentPage > 1) params.set("page", currentPage.toString());
+
+    const query = params.toString();
+    const url = query ? `${pathname}?${query}` : pathname;
+    
+    router.replace(url, { scroll: false });
+  }, [searchTerm, areaFilter, temaFilter, formatFilter, currentPage, pathname, router]);
 
   // Manejar carga de nuevos datos desde Excel
   const handleDataLoaded = (newBooks) => {
@@ -27,7 +49,6 @@ export default function Home() {
     setTemaFilter("all");
     setFormatFilter("all");
     setCurrentPage(1);
-    // Nota: En una app real, aquí podrías enviar los datos al backend para guardar en library.json
   };
 
 // Obtener listas únicas de áreas y temas
@@ -98,7 +119,7 @@ const handleItemsPerPageChange = (items) => {
       <LibraryHeader />
 
       <main className="container mx-auto px-4 py-8 sm:py-10">
-        <ExcelUploader onDataLoaded={handleDataLoaded} />
+        
         
         <SearchFilters
           searchTerm={searchTerm}
@@ -184,5 +205,17 @@ const handleItemsPerPageChange = (items) => {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#e8e4c0]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#2d5016]"></div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }
