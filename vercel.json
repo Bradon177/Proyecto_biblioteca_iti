@@ -1,5 +1,0 @@
-{
-  "buildCommand": "cd biblioteca_iti && npm run build",
-  "installCommand": "cd biblioteca_iti && npm install",
-  "framework": "nextjs"
-}
