@@ -25,14 +25,16 @@ export function ExcelUploader({ onDataLoaded }) {
         const wb = XLSX.read(dataBuffer, { type: "array" });
         const wsname = wb.SheetNames[0];
         const ws = wb.Sheets[wsname];
-        const data = XLSX.utils.sheet_to_json(ws);
+        // Usar raw: false para obtener el texto formateado tal cual se ve en Excel
+        // Esto preserva ceros a la izquierda en códigos y otros formatos
+        const data = XLSX.utils.sheet_to_json(ws, { raw: false });
 
         console.log("Datos brutos del Excel:", data);
 
         // Mapear los datos del Excel a la estructura del JSON
         const mappedData = data
           .filter((row) => Object.values(row).some((val) => val !== null && val !== ""))
-          .map((row) => {
+          .map((row, index) => {
             // Función para obtener valor buscando por múltiples posibles nombres de columna
             const getVal = (row, keys) => {
               const rowKeys = Object.keys(row);
@@ -64,17 +66,19 @@ export function ExcelUploader({ onDataLoaded }) {
               return str === "SI" || str === "SÍ" || val === true || val === 1 || str === "S";
             };
 
+            const cantidadVal = getVal(row, ["Cantidad", "Stock", "Ejemplares", "Cant"]);
+
             return {
-              codigo: String(getVal(row, ["Código del Libro", "Codigo", "ID", "Código", "Cod"])),
-              nombre: String(getVal(row, ["Nombre del Libro", "Nombre", "Título", "Libro", "Nombre Libro"])),
-              autor: String(getVal(row, ["Autor (es)", "Autor", "Autores", "Autor(es)"])),
-              area: String(getVal(row, ["Área / Sección", "Área", "Area", "Sección", "Seccion", "Area Seccion"])),
-              tema: String(getVal(row, ["Tema", "Categoría", "Categoria"])),
-              stand: String(getVal(row, ["Nº Stand", "No Stand", "Stand", "Estante", "N Stand", "No. Stand"])),
-              cantidad: Number(getVal(row, ["Cantidad", "Stock", "Ejemplares", "Cant"]) || 0),
+              codigo: String(getVal(row, ["Código del Libro", "Codigo", "ID", "Código", "Cod"]) || "").trim(),
+              nombre: String(getVal(row, ["Nombre del Libro", "Nombre", "Título", "Libro", "Nombre Libro"]) || "").trim(),
+              autor: String(getVal(row, ["Autor (es)", "Autor", "Autores", "Autor(es)"]) || "").trim(),
+              area: String(getVal(row, ["Área / Sección", "Área", "Area", "Sección", "Seccion", "Area Seccion"]) || "").trim(),
+              tema: String(getVal(row, ["Tema", "Categoría", "Categoria"]) || "").trim(),
+              stand: String(getVal(row, ["Nº Stand", "No Stand", "Stand", "Estante", "N Stand", "No. Stand"]) || "").trim(),
+              cantidad: isNaN(Number(cantidadVal)) ? 0 : Number(cantidadVal),
               fisico: isSi(getVal(row, ["Libro en Físico?", "Libro Físico?", "Físico", "Fisico", "En Físico", "En Fisico"])),
               virtual: isSi(getVal(row, ["Libro Virtual? (e-Book)", "Libro Virtual?", "Virtual", "Digital", "E-book", "eBook"])),
-              linkVirtual: String(getVal(row, ["Enalce del libro", "Enlace del libro", "Enlace", "Link", "URL", "Enalce", "Enalce Libro", "Enlace Libro"])),
+              linkVirtual: String(getVal(row, ["Enalce del libro", "Enlace del libro", "Enlace", "Link", "URL", "Enalce", "Enalce Libro", "Enlace Libro"]) || "").trim(),
             };
           });
 

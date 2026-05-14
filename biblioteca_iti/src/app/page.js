@@ -26,20 +26,48 @@ function HomeContent() {
   const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  // Sincronizar estado con la URL
+  // Sincronizar estado con la URL cuando cambian los filtros
   useEffect(() => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(searchParams.toString());
+    
     if (searchTerm) params.set("search", searchTerm);
+    else params.delete("search");
+    
     if (areaFilter !== "all") params.set("area", areaFilter);
+    else params.delete("area");
+    
     if (temaFilter !== "all") params.set("tema", temaFilter);
+    else params.delete("tema");
+    
     if (formatFilter !== "all") params.set("format", formatFilter);
+    else params.delete("format");
+    
     if (currentPage > 1) params.set("page", currentPage.toString());
+    else params.delete("page");
 
     const query = params.toString();
-    const url = query ? `${pathname}?${query}` : pathname;
+    const currentQuery = searchParams.toString();
     
-    router.replace(url, { scroll: false });
-  }, [searchTerm, areaFilter, temaFilter, formatFilter, currentPage, pathname, router]);
+    if (query !== currentQuery) {
+      const url = query ? `${pathname}?${query}` : pathname;
+      router.replace(url, { scroll: false });
+    }
+  }, [searchTerm, areaFilter, temaFilter, formatFilter, currentPage, pathname, router, searchParams]);
+
+  // Sincronizar URL con el estado (para navegación atrás/adelante)
+  useEffect(() => {
+    const search = searchParams.get("search") || "";
+    const area = searchParams.get("area") || "all";
+    const tema = searchParams.get("tema") || "all";
+    const format = searchParams.get("format") || "all";
+    const page = Number(searchParams.get("page")) || 1;
+
+    if (search !== searchTerm) setSearchTerm(search);
+    if (area !== areaFilter) setAreaFilter(area);
+    if (tema !== temaFilter) setTemaFilter(tema);
+    if (format !== formatFilter) setFormatFilter(format);
+    if (page !== currentPage) setCurrentPage(page);
+  }, [searchParams]);
 
   // Manejar carga de nuevos datos desde Excel
   const handleDataLoaded = (newBooks) => {
@@ -69,9 +97,9 @@ const filteredBooks = useMemo(() => {
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch =
       searchTerm === "" ||
-      book.codigo.toLowerCase().includes(searchLower) ||
-      book.nombre.toLowerCase().includes(searchLower) ||
-      book.autor.toLowerCase().includes(searchLower);
+      String(book.codigo || "").toLowerCase().includes(searchLower) ||
+      String(book.nombre || "").toLowerCase().includes(searchLower) ||
+      String(book.autor || "").toLowerCase().includes(searchLower);
 
     // Filtro de área
     const matchesArea = areaFilter === "all" || book.area === areaFilter;
